@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SajdaFinder V3 - Precision Pro</title>
+    <title>SajdaFinder V3 - Final Master</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -17,23 +17,23 @@
         .bottom-nav-active { background-color: var(--gold) !important; color: var(--black) !important; transform: scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
         .safe-click { cursor: pointer; touch-action: manipulation; }
         
-        #compass-outer { border: 8px solid #f1f1f1; transition: all 0.3s ease; }
+        #compass-outer { border: 8px solid #f1f1f1; transition: border-color 0.3s ease; box-shadow: 0 0 0 rgba(197, 160, 89, 0); }
         #compass-outer.aligned { border-color: var(--gold); box-shadow: 0 0 35px rgba(197, 160, 89, 0.6); }
-        #needle-group { transform-origin: center; transition: transform 0.1s linear; }
+        #needle-group { transition: transform 0.1s linear; transform-origin: center; }
         .zikr-ring { transition: stroke-dashoffset 0.3s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
         .mosque-card { background: white; border-radius: 1.5rem; border: 1px solid #f1f1f1; }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-32 text-left">
 
     <!-- HEADER -->
-    <header class="bg-black text-white px-6 py-6 flex justify-between items-center sticky top-0 z-[1000] shadow-xl text-left">
+    <header class="bg-black text-white px-6 py-6 flex justify-between items-center sticky top-0 z-[1000] shadow-xl">
         <div class="flex items-center gap-3">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             <span class="text-2xl font-black tracking-tighter uppercase leading-none">SajdaFinder <span class="text-[#c5a059]">V2</span></span>
         </div>
         <div id="head-img" class="w-10 h-10 rounded-full border-2 border-[#c5a059] flex items-center justify-center bg-gray-800 overflow-hidden safe-click" onclick="showView('settings')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <svg id="head-placeholder" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
     </header>
 
@@ -49,7 +49,7 @@
         <!-- VIEW: HOME -->
         <section id="view-home" class="view-section active space-y-8">
             <div id="home-ui">
-                <div class="bg-white p-5 rounded-3xl border border-gray-100 flex gap-4 shadow-sm text-left">
+                <div class="bg-white p-5 rounded-3xl border border-gray-100 flex gap-4 shadow-sm">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="#c5a059"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
                     <p id="txt-hadith" class="text-gray-700 italic font-medium text-xs leading-relaxed">"Najbolji među vama je onaj koji je najbolji prema svojoj porodici."</p>
                 </div>
@@ -60,6 +60,7 @@
                     <button class="bg-[#c5a059] text-black px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95" onclick="toggleAllah(true)">99 Namen Allahs</button>
                 </div>
 
+                <!-- COMPASS -->
                 <div class="flex flex-col items-center justify-center p-4">
                     <div id="compass-outer" class="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-white flex items-center justify-center safe-click" onclick="initSensors()">
                         <div class="absolute inset-5 flex flex-col justify-between items-center text-[10px] font-black text-gray-200 pointer-events-none">
@@ -86,7 +87,7 @@
 
             <!-- Allah Names UI -->
             <div id="allah-ui" class="hidden">
-                <button class="mb-6 font-black text-xs uppercase flex items-center gap-2" onclick="toggleAllah(false)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg> <span id="txt-back">Nazad</span></button>
+                <button class="mb-6 font-black text-xs uppercase flex items-center gap-2" onclick="toggleAllah(false)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg> <span id="txt-back-nav">Nazad</span></button>
                 <div id="allah-grid" class="space-y-3"></div>
             </div>
         </section>
@@ -115,16 +116,16 @@
 
         <!-- VIEW: SCHEDULE -->
         <section id="view-schedule" class="view-section space-y-6">
-            <div class="bg-black text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-left">
+            <div class="bg-black text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
                 <h2 id="sched-date" class="text-3xl font-black italic">--.--</h2>
                 <p id="txt-prayer-title" class="text-[10px] text-gray-500 uppercase font-black mt-2">Vremena Molitve</p>
             </div>
-            <div id="times-list" class="bg-white rounded-[2.5rem] overflow-hidden divide-y divide-gray-50 border border-gray-100 shadow-sm text-left"></div>
+            <div id="times-list" class="bg-white rounded-[2.5rem] overflow-hidden divide-y divide-gray-50 border border-gray-100 shadow-sm"></div>
         </section>
 
         <!-- VIEW: SETTINGS -->
         <section id="view-settings" class="view-section space-y-6">
-            <div class="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-sm flex items-center gap-8 text-left">
+            <div class="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-sm flex items-center gap-8">
                 <div class="relative w-24 h-24 safe-click group" onclick="triggerImg()">
                     <div id="p-img-frame" class="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden border-4 border-[#c5a059] shadow-inner">
                         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -135,12 +136,12 @@
                     <input type="file" id="p-file" class="hidden" accept="image/*" onchange="uploadPic(this)">
                 </div>
                 <div class="flex-1">
-                    <input id="p-name-inp" class="font-black text-2xl w-full bg-transparent border-none p-0 focus:ring-0 leading-none text-black mb-2" value="Kuzelj10" readonly>
+                    <input id="p-name-inp" class="font-black text-2xl w-full bg-transparent border-none p-0 focus:ring-0 leading-none text-black mb-2" value="Korisnik" readonly>
                     <button id="p-edit-btn" class="text-[10px] font-black uppercase text-gray-400 border-b-2 border-gray-100 pb-1" onclick="toggleEdit()">Uredi Profil</button>
                 </div>
             </div>
 
-            <div class="space-y-4 text-left">
+            <div class="space-y-4">
                 <div class="bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100">
                     <p class="text-[10px] font-black text-gray-300 uppercase mb-5 tracking-widest">Jezik / Sprache</p>
                     <div class="grid grid-cols-3 gap-3">
@@ -180,25 +181,35 @@
     </div>
 
     <script>
-        const NAMES = [{a:"الرَّحْمَنُ",t:"Ar-Rahman",m:"Svemilosni"},{a:"الرَّحِيمُ",t:"Ar-Rahim",m:"Samilosni"},{a:"الْمَلِكُ",t:"Al-Malik",m:"Vladar"},{a:"الْقُدُّوسُ",t:"Al-Quddus",m:"Sveti"},{a:"السَّلامُ",t:"As-Salam",m:"Izvor Mira"},{a:"الْمُؤْمِنُ",t:"Al-Mu'min",m:"Pouzdani"},{a:"الْمُهَيْمِنُ",t:"Al-Muhaymin",m:"Zaštitnik"},{a:"الْعَزِيزُ",t:"Al-Aziz",m:"Silni"},{a:"الْجَبَّارُ",t:"Al-Jabbar",m:"Siloviti"},{a:"الْمُتَكَبِّرُ",t:"Al-Mutakabbir",m:"Gordi"}];
+        const NAMES = [
+            {a:"الرَّحْمَنُ",t:"Ar-Rahman",m:"Svemilosni"},{a:"الرَّحِيمُ",t:"Ar-Rahim",m:"Samilosni"},{a:"الْمَلِكُ",t:"Al-Malik",m:"Vladar"},{a:"الْقُدُّوسُ",t:"Al-Quddus",m:"Sveti"},{a:"السَّلامُ",t:"As-Salam",m:"Izvor Mira"},
+            {a:"الْمُؤْمِنُ",t:"Al-Mu'min",m:"Pouzdani"},{a:"الْمُهَيْمِنُ",t:"Al-Muhaymin",m:"Zaštitnik"},{a:"الْعَزِيزُ",t:"Al-Aziz",m:"Silni"},{a:"الْجَبَّارُ",t:"Al-Jabbar",m:"Siloviti"},{a:"الْمُتَكَبِّرُ",t:"Al-Mutakabbir",m:"Gordi"},
+            {a:"الْخَالِقُ",t:"Al-Khaliq",m:"Stvoritelj"},{a:"الْبَارِئُ",t:"Al-Bari'",m:"Koji divno stvara"},{a:"الْمُصَوِّرُ",t:"Al-Musawwir",m:"Oblikovatelj"},{a:"الْغَفَّارُ",t:"Al-Ghaffar",m:"Koji prašta"},{a:"الْقَهَّارُ",t:"Al-Qahhar",m:"Savladaoc"}
+        ];
 
         let lang = localStorage.getItem('p_lang') || 'bs';
         let zkCounter = parseInt(localStorage.getItem('p_zk')) || 0;
         let pos = null;
         let qBearing = 0;
         let isEdit = false;
+        let pTimes = null;
 
         function updateUI(id, val) { const el = document.getElementById(id); if(el) el.innerText = val; }
 
         function refresh() {
             const m = {
-                de: { h:"KIBLA", z:"ZIKR", p:"GEBETE", pr:"PROFIL", next:"Nächstes Gebet", back:"Zurück", prt:"Gebetszeiten", mz:"Rechtsschule", calc:"Kalkulation" },
-                en: { h:"QIBLA", z:"ZIKR", p:"PRAYERS", pr:"PROFILE", next:"Next Prayer", back:"Back", prt:"Prayer Times", mz:"School", calc:"Calculation" },
-                bs: { h:"KIBLA", z:"ZIKR", p:"NAMAZ", pr:"PROFIL", next:"Sljedeći Namaz", back:"Nazad", prt:"Vremena Molitve", mz:"Mezheb", calc:"Kalkulacija" }
+                de: { h:"KIBLA", z:"ZIKR", p:"GEBETE", pr:"PROFIL", next:"Nächstes", back:"Zurück", prt:"Gebetszeiten", mz:"Rechtsschule", calc:"Kalkulation" },
+                en: { h:"QIBLA", z:"ZIKR", p:"PRAYERS", pr:"PROFILE", next:"Next", back:"Back", prt:"Prayer Times", mz:"School", calc:"Calculation" },
+                bs: { h:"KIBLA", z:"ZIKR", p:"NAMAZ", pr:"PROFIL", next:"Sljedeći", back:"Nazad", prt:"Vremena Molitve", mz:"Mezheb", calc:"Računanje" }
             }[lang];
             updateUI('tab-home', m.h); updateUI('tab-zikr', m.z); updateUI('tab-schedule', m.p); updateUI('tab-settings', m.pr);
-            updateUI('txt-back', m.back); updateUI('txt-prayer-title', m.prt);
+            updateUI('txt-back-nav', m.back); updateUI('txt-prayer-title', m.prt);
             updateUI('txt-mezheb-lbl', m.mz); updateUI('txt-calc-lbl', m.calc);
+
+            if(pTimes) {
+                const next = calculateNext(pTimes);
+                updateUI('home-next-lbl', (m.next || 'Next') + ": " + next.name);
+            }
 
             ['de','en','bs'].forEach(l => {
                 const b = document.getElementById('lb-'+l);
@@ -210,42 +221,77 @@
             const sel = document.getElementById('p-calc-sel'); if(sel) sel.value = localStorage.getItem('p_cm') || '13';
         }
 
-        // COMPASS PRECISION FIX
         async function initSensors() {
-            updateUI('comp-status', 'GPS traženje...');
+            updateUI('comp-status', 'GPS...');
             navigator.geolocation.getCurrentPosition(p => {
                 pos = p.coords;
                 const kl=21.4225*Math.PI/180; const ko=39.8262*Math.PI/180;
                 const ml=pos.latitude*Math.PI/180; const mo=pos.longitude*Math.PI/180;
                 const y=Math.sin(ko-mo); const x=Math.cos(ml)*Math.tan(kl)-Math.sin(ml)*Math.cos(ko-mo);
                 qBearing = (Math.atan2(y, x)*180/Math.PI+360)%360;
-                load(pos.latitude, pos.longitude);
+                loadData(pos.latitude, pos.longitude);
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission().then(r => { if(r==='granted') window.addEventListener('deviceorientation', hOrient, true); });
                 } else { window.addEventListener('deviceorientation', hOrient, true); }
-                updateUI('comp-status', 'Compass Ready');
-            }, () => alert("Bitte GPS aktivieren!"));
+                updateUI('comp-status', 'Drehen / Turn...');
+            }, () => alert("GPS ERROR"));
         }
 
         function hOrient(e) {
-            let heading = e.webkitCompassHeading;
-            if (!heading && e.alpha !== null) heading = 360 - e.alpha;
-            if (heading === undefined || heading === null) return;
+            let h = e.webkitCompassHeading;
+            if(!h && e.alpha !== null) h = 360 - e.alpha;
+            if(h === undefined || h === null) return;
             const needle = document.getElementById('needle-group');
             const outer = document.getElementById('compass-outer');
-            let relative = (qBearing - heading + 360) % 360;
+            let relative = (qBearing - h + 360) % 360;
             if(needle) needle.style.transform = `rotate(${relative}deg)`;
             if(Math.abs(relative) < 5 || Math.abs(relative) > 355) {
                 if(outer) outer.classList.add('aligned');
-                updateUI('comp-status', lang==='bs'?'Kibla pronađena!':(lang==='de'?'Kibla gefunden!':'Qibla found!'));
+                updateUI('comp-status', 'KIBLA!');
             } else {
                 if(outer) outer.classList.remove('aligned');
-                updateUI('comp-status', lang==='bs'?'Tražim Kiblu...':(lang==='de'?'Suche Kibla...':'Finding Qibla...'));
+                updateUI('comp-status', '...');
             }
-            updateUI('comp-deg', Math.round(heading) + "°");
+            updateUI('comp-deg', Math.round(h) + "°");
         }
 
-        // ZIKR
+        function calculateNext(times) {
+            const now = new Date();
+            const order = [
+                {name: lang==='bs'?'Zora':'Fajr', k:'Fajr'}, {name: lang==='bs'?'Izlazak':'Sunrise', k:'Sunrise'},
+                {name: lang==='bs'?'Podne':'Dhuhr', k:'Dhuhr'}, {name: lang==='bs'?'Ikindija':'Asr', k:'Asr'},
+                {name: lang==='bs'?'Akšam':'Maghrib', k:'Maghrib'}, {name: lang==='bs'?'Jacija':'Isha', k:'Isha'}
+            ];
+            for(let p of order) {
+                const [hr, min] = times[p.k].split(':'); 
+                const pT = new Date(); pT.setHours(hr, min, 0);
+                if(pT > now) return { name: p.name, time: times[p.k] };
+            }
+            return { name: lang==='bs'?'Zora (Sutra)':'Fajr (Tomorrow)', time: times['Fajr'] };
+        }
+
+        async function loadData(la, lo) {
+            const cm = localStorage.getItem('p_cm') || '13';
+            const mz = localStorage.getItem('p_mz') || 'h';
+            const r = await fetch(`https://api.aladhan.com/v1/timings?latitude=${la}&longitude=${lo}&method=${cm}&school=${mz==='s'?1:0}`);
+            const d = await r.json();
+            pTimes = d.data.timings;
+            const next = calculateNext(pTimes);
+            updateUI('home-time', next.time);
+            updateUI('home-next-lbl', (lang==='bs'?'Sljedeći: ':'Next: ') + next.name);
+            updateUI('sched-date', d.data.date.readable);
+            const list = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+            document.getElementById('times-list').innerHTML = list.map(l => `<div class="px-10 py-7 flex justify-between items-center bg-white border-b border-gray-50"><span class="text-[9px] font-black text-gray-300 uppercase">${l}</span><span class="text-2xl font-black">${pTimes[l]}</span></div>`).join('');
+            
+            const req = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="place_of_worship"]["religion"="muslim"](around:10000,${la},${lo});out;`);
+            const res = await req.json();
+            document.getElementById('mosque-list').innerHTML = res.elements.slice(0,5).map(m => `
+                <div class="mosque-card p-6 flex justify-between items-center shadow-sm safe-click" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}')">
+                    <span class="font-black text-xs uppercase text-black font-semibold">${m.tags.name || 'Džamija'}</span>
+                    <div class="bg-black text-[#c5a059] p-3 rounded-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 10 20 15 15 20"></polyline><path d="M4 4v7a4 4 0 0 0 4 4h12"></path></svg></div>
+                </div>`).join('');
+        }
+
         function doZikr() {
             zkCounter++; if(zkCounter > 33) zkCounter = 1;
             updateZikrUI(); if(navigator.vibrate) navigator.vibrate(55);
@@ -261,51 +307,6 @@
             document.querySelectorAll('.view-section button[id^="zb-"]').forEach(btn => btn.className = "flex-1 py-3.5 rounded-2xl bg-gray-50 text-gray-300 text-[9px] font-black");
             const b = document.getElementById(id); if(b) b.className = "flex-1 py-3.5 rounded-2xl bg-black text-[#c5a059] text-[9px] font-black shadow-lg";
         }
-
-        // NEXT PRAYER LOGIC FIX
-        function calculateNext(timings) {
-            const now = new Date();
-            const prayerOrder = [
-                {name: 'Fajr', key: 'Fajr'},
-                {name: 'Sunrise', key: 'Sunrise'},
-                {name: 'Podne', key: 'Dhuhr'},
-                {name: 'Ikindija', key: 'Asr'},
-                {name: 'Akšam', key: 'Maghrib'},
-                {name: 'Jacija', key: 'Isha'}
-            ];
-            
-            for (let prayer of prayerOrder) {
-                const [h, m] = timings[prayer.key].split(':');
-                const prayerTime = new Date();
-                prayerTime.setHours(parseInt(h), parseInt(m), 0);
-                if (prayerTime > now) return { name: prayer.name, time: timings[prayer.key] };
-            }
-            return { name: 'Fajr (Sutra)', time: timings['Fajr'] };
-        }
-
-        async function load(la, lo) {
-            const cm = localStorage.getItem('p_cm') || '13';
-            const mz = localStorage.getItem('p_mz') || 'h';
-            const r = await fetch(`https://api.aladhan.com/v1/timings?latitude=${la}&longitude=${lo}&method=${cm}&school=${mz==='s'?1:0}`);
-            const d = await r.json();
-            const t = d.data.timings;
-            const next = calculateNext(t);
-            updateUI('home-time', next.time);
-            updateUI('home-next-lbl', (lang==='bs'?'Sljedeći: ':'Next: ') + next.name);
-            updateUI('sched-date', d.data.date.readable);
-            const list = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
-            document.getElementById('times-list').innerHTML = list.map(l => `<div class="px-10 py-7 flex justify-between items-center bg-white"><span class="text-[9px] font-black text-gray-300 uppercase">${l}</span><span class="text-2xl font-black">${t[l]}</span></div>`).join('');
-            
-            const osm = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="place_of_worship"]["religion"="muslim"](around:10000,${la},${lo});out;`);
-            const mres = await osm.json();
-            document.getElementById('mosque-list').innerHTML = mres.elements.slice(0,5).map(m => `
-                <div class="mosque-card p-6 flex justify-between items-center shadow-sm safe-click" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}','_blank')">
-                    <span class="font-black text-xs uppercase text-black italic">${m.tags.name || 'Džamija'}</span>
-                    <div class="bg-black text-[#c5a059] p-3 rounded-full shadow-lg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="15 10 20 15 15 20"></polyline><path d="M4 4v7a4 4 0 0 0 4 4h12"></path></svg></div>
-                </div>`).join('');
-        }
-
-        // PROFILE
         function toggleEdit() {
             isEdit = !isEdit;
             const inp = document.getElementById('p-name-inp');
@@ -325,7 +326,6 @@
                 }; r.readAsDataURL(inp.files[0]);
             }
         }
-
         function showView(id) {
             document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
             const s = document.getElementById('view-'+id); if(s) s.classList.add('active');
@@ -333,23 +333,21 @@
                 const b = document.getElementById('navbtn-'+n);
                 if(b) { b.classList.add('opacity-30'); b.classList.remove('bottom-nav-active'); }
             });
-            const m = {home:'h',zikr:'z',schedule:'s',settings:'p'};
-            const active = document.getElementById('navbtn-'+m[id]); if(active) { active.classList.remove('opacity-30'); active.classList.add('bottom-nav-active'); }
+            const mMap = {home:'h',zikr:'z',schedule:'s',settings:'p'};
+            const act = document.getElementById('navbtn-'+mMap[id]); if(act) { act.classList.remove('opacity-30'); act.classList.add('bottom-nav-active'); }
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
             const tab = document.getElementById('tab-'+id); if(tab) tab.classList.add('nav-active');
         }
-
         function setLang(l) { lang = l; localStorage.setItem('p_lang', l); refresh(); }
         function setMZ(v) { localStorage.setItem('p_mz', v); location.reload(); }
         function setCM(v) { localStorage.setItem('p_cm', v); location.reload(); }
-
         function toggleAllah(show) {
             document.getElementById('home-ui').style.display = show ? 'none' : 'block';
             document.getElementById('allah-ui').style.display = show ? 'block' : 'none';
             if(show) {
                 document.getElementById('allah-grid').innerHTML = NAMES.map((n, i) => `
                     <div class="bg-white p-6 rounded-2xl border border-gray-100 flex items-center justify-between">
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4 text-left">
                              <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center font-black text-[9px] text-gray-300">#${i+1}</div>
                              <div><p class="font-black text-black text-xs uppercase">${n.t}</p><p class="text-[9px] text-gray-400 font-bold uppercase">${n.m}</p></div>
                         </div>
@@ -357,7 +355,6 @@
                     </div>`).join('');
             }
         }
-
         window.onload = () => {
             updateZikrUI(); refresh();
             const nm = localStorage.getItem('p_name'); if(nm) document.getElementById('p-name-inp').value = nm;
@@ -365,6 +362,7 @@
             if(im) {
                 const h = `<img src="${im}" class="w-full h-full object-cover">`;
                 document.getElementById('p-img-frame').innerHTML = h; document.getElementById('head-img').innerHTML = h;
+                const ph = document.getElementById('head-placeholder'); if(ph) ph.style.display = 'none';
             }
         };
     </script>
