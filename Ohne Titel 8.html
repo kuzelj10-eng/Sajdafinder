@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SajdaFinder V2 - Real Compass Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #c5a059; --black: #111111; --white: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: var(--black); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        .font-arabic { font-family: 'Amiri', serif; }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-active { border-bottom: 5px solid var(--black); color: var(--black) !important; font-weight: 900; }
+        .bottom-nav-active { background-color: var(--gold) !important; color: var(--black) !important; transform: scale(1.15); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+        .counter-circle { width: 250px; height: 250px; border-radius: 50%; border: 15px solid var(--black); display: flex; align-items: center; justify-content: center; font-size: 6rem; font-weight: 900; margin: 0 auto; background: #fff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); }
+        .zikr-btn-active { background-color: var(--black) !important; color: var(--gold) !important; border-color: var(--black) !important; }
+        .safe-click { cursor: pointer !important; touch-action: manipulation; }
+        input:focus { outline: none; border-bottom: 3px solid var(--gold) !important; }
+        .settings-card { background: white; border-radius: 2rem; border: 1px solid #efefef; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .mosque-item:active { transform: scale(0.98); }
+        #compass-ui { transition: transform 0.2s ease-out; }
+    </style>
+</head>
+<body class="pb-44">
+
+    <!-- HEADER -->
+    <header class="bg-black text-white px-8 py-8 flex justify-between items-center sticky top-0 z-[1000] shadow-2xl">
+        <div class="flex items-center gap-4">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <span class="text-3xl font-black tracking-tighter uppercase text-white">SajdaFinder <span style="color: var(--gold)">V2</span></span>
+        </div>
+        <div id="head-profile-trigger" class="w-12 h-12 rounded-full border-2 border-[#c5a059] flex items-center justify-center overflow-hidden bg-gray-800 safe-click" onclick="showView('settings')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="bg-white border-b border-gray-100 flex sticky top-[92px] z-[900] shadow-sm">
+        <button id="tab-home" class="flex-1 py-5 text-[11px] uppercase font-black tracking-[0.2em] text-gray-400 nav-active safe-click" onclick="showView('home')">Kibla</button>
+        <button id="tab-zikr" class="flex-1 py-5 text-[11px] uppercase font-black tracking-[0.2em] text-gray-400 safe-click" onclick="showView('zikr')">Zikr</button>
+        <button id="tab-schedule" class="flex-1 py-5 text-[11px] uppercase font-black tracking-[0.2em] text-gray-400 safe-click" onclick="showView('schedule')">Gebete</button>
+        <button id="tab-settings" class="flex-1 py-5 text-[11px] uppercase font-black tracking-[0.2em] text-gray-400 safe-click" onclick="showView('settings')">Profil</button>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-6 py-10">
+
+        <!-- VIEW: HOME (QIBLA) -->
+        <section id="view-home" class="view-section active space-y-8">
+            <div id="main-home-ui">
+                <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 flex gap-6 shadow-sm mb-8">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="#c5a059" stroke="#c5a059"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <div>
+                        <h4 id="txt-hadith-label" class="text-black font-black text-[12px] uppercase tracking-widest mb-1 opacity-40">Dnevni Hadis</h4>
+                        <p id="txt-hadith-val" class="text-gray-600 font-medium italic text-lg leading-snug">"Najbolji među vama je onaj koji je najbolji prema svojoj porodici."</p>
+                    </div>
+                </div>
+
+                <div class="bg-black text-white p-10 rounded-[3rem] mb-10 shadow-2xl relative overflow-hidden text-center">
+                    <h2 id="next-pray-time" class="text-4xl font-black mb-1 italic">--:--</h2>
+                    <p id="txt-next-pray-lbl" class="text-gray-400 mb-8 font-bold uppercase text-xs tracking-widest">Warte auf Standort...</p>
+                    <button id="txt-names-btn" class="bg-[#c5a059] text-black px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] safe-click shadow-lg" onclick="toggleAllah(true)">99 Namen Allahs</button>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="relative w-full h-80 bg-white border-2 border-gray-100 rounded-[3rem] shadow-xl flex flex-col items-center justify-center overflow-hidden">
+                        <div id="compass-ui" class="relative">
+                            <!-- Compass Rose (Background) -->
+                            <div class="absolute -inset-10 border border-gray-50 rounded-full flex items-center justify-center opacity-20">
+                                <span class="absolute top-0 font-black text-[8px] text-black">N</span>
+                                <span class="absolute right-0 font-black text-[8px] text-black">E</span>
+                                <span class="absolute bottom-0 font-black text-[8px] text-black">S</span>
+                                <span class="absolute left-0 font-black text-[8px] text-black">W</span>
+                            </div>
+                            <!-- Needle -->
+                            <svg width="100" height="100" viewBox="0 0 24 24" fill="#c5a059" stroke="#c5a059" stroke-width="2"><polygon points="12 2 15 12 12 22 9 12 12 2"></polygon></svg>
+                        </div>
+                        <div class="mt-6 text-center">
+                           <span id="loc-status-txt" class="font-black text-xs tracking-[0.3em] uppercase text-black block mb-1" onclick="startTracking()">START KIBLA</span>
+                           <span id="qibla-degree" class="font-black text-[10px] text-gray-300 uppercase tracking-widest">--°</span>
+                        </div>
+                    </div>
+                    <p id="txt-gps-hint" class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">Handy flach halten für beste Ergebnisse</p>
+                </div>
+
+                <div id="mosque-results-ui" class="mt-10 space-y-5 pb-10"></div>
+            </div>
+
+            <div id="names-view-ui" class="hidden">
+                <button class="mb-8 font-black text-sm uppercase tracking-[0.2em] flex items-center gap-3 safe-click text-black" onclick="toggleNames(false)"> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><polyline points="15 18 9 12 15 6"></polyline></svg> <span id="txt-back">NAZAD</span></button>
+                <div id="names-grid-ui" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: ZIKR -->
+        <section id="view-zikr" class="view-section text-center space-y-10">
+            <div class="settings-card p-10">
+                <div class="grid grid-cols-3 gap-3 mb-12">
+                    <button id="z-sub" class="py-4 rounded-2xl border border-gray-100 text-[10px] font-black uppercase zikr-btn-active safe-click" onclick="updateZikrType('SubhanAllah', 'z-sub')">SubhanAllah</button>
+                    <button id="z-elh" class="py-4 rounded-2xl border border-gray-100 text-[10px] font-black uppercase bg-gray-50 text-gray-300 safe-click" onclick="updateZikrType('Elhamdulillah', 'z-elh')">Elhamdulillah</button>
+                    <button id="z-all" class="py-4 rounded-2xl border border-gray-100 text-[10px] font-black uppercase bg-gray-50 text-gray-300 safe-click" onclick="updateZikrType('Allahu Akbar', 'z-all')">Allahu Akbar</button>
+                </div>
+                <p id="zikr-type-lbl" class="text-gray-400 font-bold text-sm uppercase mb-6 tracking-[0.4em]">SUBHANALLAH</p>
+                <div id="zikr-ui" class="counter-circle">0</div>
+                <div class="flex gap-4 mt-12">
+                    <button id="txt-count-btn" class="flex-1 py-12 rounded-[2.5rem] font-black text-4xl safe-click shadow-2xl" style="background-color: var(--gold); color: black;" onclick="addZ()">BROJI (+)</button>
+                    <button id="txt-reset-btn" class="bg-black text-white px-10 rounded-[2rem] font-black uppercase text-xs safe-click" onclick="resZ()">RESET</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: Namaz -->
+        <section id="view-schedule" class="view-section">
+            <div class="settings-card overflow-hidden">
+                <div class="bg-black text-white p-10 flex justify-between items-end">
+                    <div><h2 id="sched-date-ui" class="text-3xl font-black italic">--.----</h2><p id="txt-sched-sub" class="text-xs font-bold opacity-60 uppercase tracking-widest mt-2">Dnevno Vrijeme</p></div>
+                    <span id="txt-city-badge" class="bg-[#c5a059] text-black px-4 py-2 rounded-xl text-xs font-black uppercase">GPS-AKTIV</span>
+                </div>
+                <div id="prayer-list-ui" class="divide-y divide-gray-100"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: SETTINGS -->
+        <section id="view-settings" class="view-section space-y-10">
+            <div class="settings-card overflow-hidden p-2">
+                <div class="p-8 bg-gray-50/50 rounded-t-[2rem] flex justify-between items-center">
+                    <span id="txt-sets-prof" class="font-black text-xs text-gray-400 uppercase tracking-[0.2em]">Mein Profil</span>
+                    <button id="btn-edit-toggle" class="text-black font-black text-sm underline safe-click" onclick="handleEdit()">Uredi</button>
+                </div>
+                <div class="p-10 flex flex-col sm:flex-row items-center gap-10">
+                    <div class="relative">
+                        <div id="img-container-ui" class="w-32 h-32 rounded-full border-[6px] border-black bg-white overflow-hidden shadow-2xl flex items-center justify-center">
+                            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <button id="cam-overlay-ui" class="absolute bottom-1 right-1 bg-black text-white p-3 rounded-full hidden safe-click" onclick="document.getElementById('file-inp-ui').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path></svg></button>
+                        <input type="file" id="file-inp-ui" class="hidden" accept="image/*" onchange="procImg(this)">
+                    </div>
+                    <div class="flex-1 w-full text-center sm:text-left space-y-4">
+                        <input id="u-name-val" class="w-full text-4xl font-black bg-transparent border-none p-0 focus:ring-0 text-black appearance-none" value="Kuzelj10" readonly>
+                        <input id="u-mail-val" class="w-full text-lg text-gray-400 bg-transparent border-none p-0 focus:ring-0 appearance-none" value="kuzelj10@gmail.com" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission Unit -->
+            <div class="settings-card p-10 space-y-6">
+                <p id="txt-gps-perm-lbl" class="text-xs uppercase text-gray-400 tracking-[0.2em]">Standort / GPS Status</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div id="gps-status-dot" class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_10px_red]"></div>
+                        <span id="gps-status-txt" class="font-black text-sm uppercase">Inaktiv</span>
+                    </div>
+                    <button class="bg-black text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase safe-click" onclick="testGPS()">Testen / Erteilen</button>
+                </div>
+            </div>
+
+            <div class="settings-card divide-y divide-gray-100 overflow-hidden font-black">
+                <div class="p-10 space-y-6">
+                    <p id="txt-lang-lbl" class="text-xs uppercase text-gray-400 tracking-[0.2em]">Jezik</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button id="btn-l-de" class="py-4 rounded-2xl text-[10px] bg-black text-[#c5a059] safe-click shadow-lg" onclick="changeLang('de')">DEUTSCH</button>
+                        <button id="btn-l-en" class="py-4 rounded-2xl text-[10px] bg-gray-50 text-gray-400 safe-click" onclick="changeLang('en')">ENGLISH</button>
+                        <button id="btn-l-bs" class="py-4 rounded-2xl text-[10px] bg-gray-50 text-gray-400 safe-click" onclick="changeLang('bs')">BOSANSKI</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER NAV -->
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-[2000]">
+        <nav class="bg-black text-white rounded-full flex justify-around items-center p-4 shadow-2xl border-4 border-white">
+            <button id="nav-h" class="p-4 rounded-full bottom-nav-active safe-click" onclick="showView('home')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
+            <button id="nav-z" class="p-4 rounded-full opacity-40 safe-click" onclick="showView('zikr')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 12m-3 0a3 3 0 1 0 6 0"></path></svg></button>
+            <button id="nav-s" class="p-4 rounded-full opacity-40 safe-click" onclick="showView('schedule')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button>
+            <button id="nav-p" class="p-4 rounded-full opacity-40 safe-click" onclick="showView('settings')"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle></svg></button>
+        </nav>
+    </div>
+
+    <script>
+        const LANG_MAP = {
+            de: { k:"KIBLA", z:"ZIKR", n:"NAMAZ", p:"PROFIL", ht:"Daily Hadith", hval:"Der Beste unter euch ist derjenige, der am besten zu seiner Familie ist.", next:"Nächstes Gebet", names:"99 NAMEN ALLAHS", start:"START KIBLA", back:"ZURÜCK", count:"BROJI (+)", res:"RESET", setsP:"Benutzerprofil", edit:"Uredi", save:"Spasi", lang:"Sprache", gpsPerm:"Standort / GPS", gpsAct:"Aktiv", gpsInact:"Inaktiv", navHint: "Klick für Navigation" },
+            en: { k:"QIBLA", z:"ZIKR", n:"PRAYERS", p:"PROFILE", ht:"Daily Hadith", hval:"The best among you are those who are best to their families.", next:"Next Prayer", names:"99 NAMES OF ALLAH", start:"START QIBLA", back:"BACK", count:"COUNT (+)", res:"RESET", setsP:"User Profile", edit:"Edit", save:"Save", lang:"Language", gpsPerm:"Location / GPS", gpsAct:"Active", gpsInact:"Inactive", navHint: "Click for navigation" },
+            bs: { k:"KIBLA", z:"ZIKR", n:"NAMAZ", p:"PROFIL", ht:"Dnevni Hadis", hval:"Najbolji među vama je onaj koji je najbolji prema svojoj porodici.", next:"Sljedeći Namaz", names:"99 ALLAHOVIH IMENA", start:"START KIBLA", back:"NAZAD", count:"BROJI (+)", res:"RESET", setsP:"Korisnički Profil", edit:"Uredi", save:"Spasi", lang:"Jezik", gpsPerm:"Lokacija / GPS", gpsAct:"Aktivno", gpsInact:"Neaktivno", navHint: "Kliknite za navigaciju" }
+        };
+
+        let lang = localStorage.getItem('l_sv') || 'de';
+        let zk = parseInt(localStorage.getItem('zk_sv')) || 0;
+        let isEditing = false;
+        let qiblaBearing = 0;
+
+        function refreshUI() {
+            const t = LANG_MAP[lang];
+            document.getElementById('tab-home').innerText = t.k;
+            document.getElementById('tab-zikr').innerText = t.z;
+            document.getElementById('tab-schedule').innerText = t.n;
+            document.getElementById('tab-settings').innerText = t.p;
+            document.getElementById('txt-hadith-label').innerText = t.ht;
+            document.getElementById('txt-hadith-val').innerText = t.hval;
+            document.getElementById('txt-next-pray-lbl').innerText = t.next;
+            document.getElementById('txt-names-btn').innerText = t.names;
+            document.getElementById('loc-status-txt').innerText = t.start;
+            document.getElementById('txt-back').innerText = t.back;
+            document.getElementById('txt-count-btn').innerText = t.count;
+            document.getElementById('txt-reset-btn').innerText = t.res;
+            document.getElementById('txt-sets-prof').innerText = t.setsP;
+            document.getElementById('btn-edit-toggle').innerText = isEditing ? t.save : t.edit;
+            document.getElementById('txt-lang-lbl').innerText = t.lang;
+            document.getElementById('txt-gps-perm-lbl').innerText = t.gpsPerm;
+            ['de','en','bs'].forEach(l => { document.getElementById('btn-l-'+l).className = l===lang ? "py-4 rounded-2xl text-[10px] bg-black text-[#c5a059] safe-click shadow-lg" : "py-4 rounded-2xl text-[10px] bg-gray-50 text-gray-400 safe-click" });
+        }
+
+        function changeLang(l) { lang = l; localStorage.setItem('l_sv', l); refreshUI(); }
+
+        function showView(id) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active'));
+            document.getElementById('tab-' + id).classList.add('nav-active');
+            ['h','z','s','p'].forEach(n => { document.getElementById('nav-'+n).classList.add('opacity-40'); document.getElementById('nav-'+n).classList.remove('bottom-nav-active'); });
+            const map = {home:'h',zikr:'z',schedule:'s',settings:'p'};
+            document.getElementById('nav-'+map[id]).classList.remove('opacity-40'); document.getElementById('nav-'+map[id]).classList.add('bottom-nav-active');
+        }
+
+        // QIBLA MATH
+        function calculateQibla(lat, lon) {
+            const kaabaLat = 21.4225 * Math.PI / 180;
+            const kaabaLon = 39.8262 * Math.PI / 180;
+            const myLat = lat * Math.PI / 180;
+            const myLon = lon * Math.PI / 180;
+            const y = Math.sin(kaabaLon - myLon);
+            const x = Math.cos(myLat) * Math.tan(kaabaLat) - Math.sin(myLat) * Math.cos(kaabaLon - myLon);
+            let qibla = Math.atan2(y, x) * 180 / Math.PI;
+            return (qibla + 360) % 360;
+        }
+
+        async function startTracking() {
+            const btn = document.getElementById('loc-status-txt');
+            btn.innerText = "LOKALIZUJEM...";
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                qiblaBearing = calculateQibla(latitude, longitude);
+                document.getElementById('qibla-degree').innerText = Math.round(qiblaBearing) + "°";
+                document.getElementById('compass-ui').style.transform = `rotate(${qiblaBearing}deg)`;
+                
+                // Sensor Support
+                if (window.DeviceOrientationEvent) {
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission().then(res => { if(res === 'granted') window.addEventListener('deviceorientation', handleCompass); });
+                    } else { window.addEventListener('deviceorientation', handleCompass); }
+                }
+
+                document.getElementById('gps-status-dot').className = "w-4 h-4 rounded-full bg-green-500 shadow-[0_0_10px_green]";
+                document.getElementById('gps-status-txt').innerText = LANG_MAP[lang].gpsAct;
+                
+                try {
+                    const method = document.getElementById('calc-sel-ui').value;
+                    const resp = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}`);
+                    const d = await resp.json();
+                    const order = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                    document.getElementById('prayer-list-ui').innerHTML = order.map(n => `<div class="p-8 flex justify-between items-center bg-white"><span class="font-black text-xs text-gray-300 uppercase tracking-widest">${n}</span><span class="font-black text-2xl text-black">${d.data.timings[n]}</span></div>`).join('');
+                    document.getElementById('next-pray-time').innerText = d.data.timings['Dhuhr'];
+                    btn.innerText = "KIBLA AKTIVNA";
+                    
+                    const mResp = await fetch(`https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="place_of_worship"]["religion"="muslim"](around:10000,${latitude},${longitude});out;`);
+                    const mData = await mResp.json();
+                    document.getElementById('mosque-results-ui').innerHTML = `<h5 class="text-[10px] font-black uppercase text-gray-400 mt-6 mb-2 underline">Navigation starten</h5>` + 
+                    mData.elements.slice(0, 5).map(m => `
+                       <div class="settings-card p-6 flex justify-between items-center mosque-item active:scale-95 transition-transform safe-click" onclick="navTo(${m.lat}, ${m.lon})">
+                           <div class="flex flex-col">
+                               <span class="font-black text-sm uppercase text-black italic">${m.tags.name || 'Džamija'}</span>
+                           </div>
+                           <div class="bg-black text-[#c5a059] p-3 rounded-full"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 10 20 15 15 20"></polyline><path d="M4 4v7a4 4 0 0 0 4 4h12"></path></svg></div>
+                       </div>`).join('');
+                } catch(e) { btn.innerText = "API ERROR"; }
+            }, () => { btn.innerText = "GPS FEHLER!"; }, { enableHighAccuracy: true });
+        }
+
+        function handleCompass(e) {
+            let heading = e.webkitCompassHeading || (360 - e.alpha);
+            if (heading) {
+                const rotation = qiblaBearing - heading;
+                document.getElementById('compass-ui').style.transform = `rotate(${rotation}deg)`;
+            }
+        }
+
+        function navTo(lat, lon) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); }
+        function testGPS() { startTracking(); }
+        function addZ() { zk++; document.getElementById('zikr-ui').innerText = zk; localStorage.setItem('zk_sv', zk); }
+        function resZ() { zk = 0; document.getElementById('zikr-ui').innerText = 0; }
+        function toggleAllah(show) { document.getElementById('main-home-ui').style.display = show ? 'none' : 'block'; document.getElementById('names-view-ui').style.display = show ? 'block' : 'none'; }
+        
+        refreshUI();
+    </script>
+</body>
+</html>
