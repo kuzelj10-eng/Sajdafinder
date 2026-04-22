@@ -228,44 +228,52 @@
             const sel = document.getElementById('p-calc-sel'); if(sel) sel.value = localStorage.getItem('p_cm') || '13';
         }
 
-        async function initSensors() {
-            const status = document.getElementById('comp-status');
-            const needle = document.getElementById('needle-group');
+        function initSensors() {
+            // 1. IMMEDIATE ACTION (Line 1 for iOS)
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permission => {
+                        if (permission === 'granted') {
+                            startCompassAndGPS();
+                        } else {
+                            alert("Zugriff verweigert. Bitte Sensoren in den Einstellungen erlauben.");
+                        }
+                    })
+                    .catch(err => {
+                        alert("Fehler bei der Sensor-Anfrage. Bitte HTTPS verwenden (GitHub).");
+                        console.error(err);
+                    });
+            } else {
+                // Fallback for Android/Desktop
+                startCompassAndGPS();
+            }
+        }
+
+        function startCompassAndGPS() {
             const btn = document.getElementById('btn-activate-comp');
+            const needle = document.getElementById('needle-group');
+            
+            // HTTPS Check
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                updateUI('comp-status', 'Fehler: HTTPS erforderlich!');
+                alert("Kompass-Sensoren benötigen eine sichere Verbindung (HTTPS).");
+            }
+
+            if(btn) btn.style.display = 'none';
+            if(needle) needle.style.display = 'flex';
+            window.addEventListener('deviceorientation', hOrient, true);
 
             updateUI('comp-status', 'GPS...');
-            
             navigator.geolocation.getCurrentPosition(async p => {
                 pos = p.coords;
                 const kl=21.4225*Math.PI/180; const ko=39.8262*Math.PI/180;
                 const ml=pos.latitude*Math.PI/180; const mo=pos.longitude*Math.PI/180;
                 const y=Math.sin(ko-mo); const x=Math.cos(ml)*Math.tan(kl)-Math.sin(ml)*Math.cos(ko-mo);
                 qBearing = (Math.atan2(y, x)*180/Math.PI+360)%360;
+                
                 loadData(pos.latitude, pos.longitude);
-
-                // Permissions logic for iOS
-                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    try {
-                        const permission = await DeviceOrientationEvent.requestPermission();
-                        if (permission === 'granted') {
-                            window.addEventListener('deviceorientation', hOrient, true);
-                            if(btn) btn.style.display = 'none';
-                            if(needle) needle.style.display = 'flex';
-                        } else {
-                            alert("Permission denied for orientation sensors.");
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        alert("Error requesting orientation permission.");
-                    }
-                } else {
-                    // Regular Android/Desktop
-                    window.addEventListener('deviceorientation', hOrient, true);
-                    if(btn) btn.style.display = 'none';
-                    if(needle) needle.style.display = 'flex';
-                }
-                updateUI('comp-status', 'Drehen / Turn...');
-            }, () => alert("GPS ERROR: Please enable location services."));
+                updateUI('comp-status', lang==='bs'?'Okrećite telefon...':'Drehen / Turn...');
+            }, () => alert("GPS Fehler: Bitte Standort aktivieren."));
         }
 
         function hOrient(e) {
